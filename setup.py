@@ -1,9 +1,25 @@
 #-*-Mode:python;coding:utf-8;tab-width:4;c-basic-offset:4;indent-tabs-mode:()-*-
 # ex: set ft=python fenc=utf-8 sts=4 ts=4 sw=4 et:
-from distutils.core import setup
+import setuptools
+from distutils.core import setup, Command, Extension
+
+class PyTest(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        import tests.erlang_tests
+        import unittest
+        suite = unittest.TestSuite()
+        suite.addTests(tests.erlang_tests.get_suite())
+        unittest.TextTestRunner().run(suite)
+
 setup(
     name='erlang_py',
     py_modules=['erlang'],
+    cmdclass = {'test': PyTest},
     license='BSD',
     classifiers=[
         'Development Status :: 4 - Beta',
