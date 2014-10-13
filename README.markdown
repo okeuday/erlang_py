@@ -1,6 +1,8 @@
 Erlang Binary Term Format for Python
 ====================================
 
+[![Build Status](https://secure.travis-ci.org/okeuday/erlang_py.png?branch=master)](http://travis-ci.org/okeuday/erlang_py)
+
 Provides all encoding and decoding for the Erlang Binary Term Format
 (as defined at [http://erlang.org/doc/apps/erts/erl_ext_dist.html](http://erlang.org/doc/apps/erts/erl_ext_dist.html))
 in a single Python module.
