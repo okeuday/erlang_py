@@ -465,8 +465,10 @@ def _binary_to_term(i, data):
         for arity_index in range(arity):
             i, key = _binary_to_term(i, data)
             i, value = _binary_to_term(i, data)
-            if type(key) == dict: # no __hash__
+            if type(key) == dict:
                 pairs[frozendict(key)] = value
+            elif type(key) == list:
+                pairs[OtpErlangList(key)] = value
             else:
                 pairs[key] = value
         return (i, pairs)
