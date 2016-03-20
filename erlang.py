@@ -269,7 +269,7 @@ class OtpErlangPid(object):
 # (from http://code.activestate.com/recipes/414283-frozen-dictionaries/)
 class frozendict(dict):
     def _blocked_attribute(obj):
-        raise AttributeError, "A frozendict cannot be modified."
+        raise AttributeError('A frozendict cannot be modified.')
     _blocked_attribute = property(_blocked_attribute)
     __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute
