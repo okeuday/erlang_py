@@ -22,7 +22,7 @@ setup(
     cmdclass = {'test': PyTest},
     license='BSD',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
@@ -32,7 +32,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
     ],
-    version='1.5.3',
+    version='1.5.4',
     description='Erlang Binary Term Format for Python',
     author='Michael Truog',
     author_email='mjtruog@gmail.com',
