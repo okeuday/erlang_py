@@ -32,7 +32,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
     ],
-    version='1.5.4',
+    version='1.6.0',
     description='Erlang Binary Term Format for Python',
     author='Michael Truog',
     author_email='mjtruog@gmail.com',
