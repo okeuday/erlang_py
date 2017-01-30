@@ -8,3 +8,9 @@ Provides all encoding and decoding for the Erlang Binary Term Format
 in a single Python module.
 
 Available as a [Python package at `https://pypi.python.org/pypi/erlang_py/`](https://pypi.python.org/pypi/erlang_py/).
+
+Tests
+-----
+
+    python setup.py test
+
