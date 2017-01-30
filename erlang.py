@@ -282,6 +282,8 @@ class OtpErlangReference(object):
     def __eq__(self, other):
         return self.binary() == other.binary()
 
+# dependency to support Erlang maps as map keys in python
+
 # frozendict is under the PSF (Python Software Foundation) License
 # (from http://code.activestate.com/recipes/414283-frozen-dictionaries/)
 class frozendict(dict):
@@ -322,6 +324,8 @@ class frozendict(dict):
             return h
     def __repr__(self):
         return "frozendict(%s)" % dict.__repr__(self)
+
+# core functionality
 
 def binary_to_term(data):
     if type(data) != bytes:
