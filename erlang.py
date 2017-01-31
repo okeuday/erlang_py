@@ -330,14 +330,14 @@ class frozendict(dict):
 def binary_to_term(data):
     if type(data) != bytes:
         raise ParseException('not bytes input')
-    length = len(data)
-    if length <= 1:
+    size = len(data)
+    if size <= 1:
         raise ParseException('null input')
     if b_ord(data[0]) != _TAG_VERSION:
         raise ParseException('invalid version')
     try:
         i, term = _binary_to_term(1, data)
-        if i != length:
+        if i != size:
             raise ParseException('unparsed data')
         return term
     except struct.error:
