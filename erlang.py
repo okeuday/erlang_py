@@ -462,7 +462,7 @@ def _binary_to_term(i, data):
         if b_ord(data[i]) != _TAG_SMALL_INTEGER_EXT:
             raise ParseException('invalid small integer tag')
         i += 1
-        length = b_ord(data[i])
+        arity = b_ord(data[i])
         i += 1
         return (i, OtpErlangFunction(tag, data[old_i:i]))
     elif tag == _TAG_NEW_REFERENCE_EXT:
