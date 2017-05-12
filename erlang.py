@@ -480,6 +480,8 @@ def _binary_to_term(i, data):
             tmp = True
         elif atom_name == b'false':
             tmp = False
+        elif atom_name == b'nil':
+            tmp = None
         else:
             tmp = OtpErlangAtom(atom_name)
         return (i + j, tmp)
@@ -613,6 +615,8 @@ def _term_to_binary(term):
         return _dict_to_binary(term)
     elif type(term) == bool:
         return OtpErlangAtom(term and b'true' or b'false').binary()
+    elif term is None:
+        return OtpErlangAtom(b'nil').binary()
     elif isinstance(term, OtpErlangAtom):
         return term.binary()
     elif isinstance(term, OtpErlangList):
