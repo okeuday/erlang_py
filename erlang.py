@@ -599,10 +599,8 @@ def _binary_to_atom(i, data):
 # term_to_binary implementation functions
 
 def _term_to_binary(term):
-    if type(term) == bytes:
+    if isinstance(term, (bytes, unicode)):
         return _string_to_binary(term)
-    elif type(term) == unicode:
-        return _string_to_binary(term.encode(encoding='utf-8', errors='strict'))
     elif type(term) == list:
         return OtpErlangList(term).binary()
     elif type(term) == tuple:
@@ -632,24 +630,50 @@ def _term_to_binary(term):
     elif isinstance(term, OtpErlangPid):
         return term.binary()
     else:
-        raise OutputException('unknown python type')
+        raise OutputException('unknown python type {0}'.format(term))
 
 # (term_to_binary Erlang term composite type functions)
 
+
 def _string_to_binary(term):
+    if isinstance(term, unicode):
+        return _unicode_to_binary(term)
+    else:
+        return _bytes_to_binary(term)
+
+
+def _bytes_to_binary(term):
     length = len(term)
     if length == 0:
         return b_chr(_TAG_NIL_EXT)
     elif length <= 65535:
         return b_chr(_TAG_STRING_EXT) + struct.pack(b'>H', length) + term
     elif length <= 4294967295:
-        return (b_chr(_TAG_LIST_EXT) + struct.pack(b'>I', length) +
-            b''.join([b_chr(_TAG_SMALL_INTEGER_EXT) + b_chr(b_ord(c))
-                      for c in term]) +
+        return (
+            b_chr(_TAG_LIST_EXT) +
+            struct.pack(b'>I', length) +
+            b''.join([
+                b_chr(_TAG_SMALL_INTEGER_EXT) + b_chr(b_ord(c))
+                for c in term
+            ]) +
             b_chr(_TAG_NIL_EXT)
         )
     else:
         raise OutputException('uint32 overflow')
+
+
+def _unicode_to_binary(term):
+    term = term.encode(encoding='utf-8', errors='strict')
+    length = len(term)
+    if length <= 4294967295:
+        return (
+            b_chr(_TAG_BINARY_EXT) +
+            struct.pack(b'>I', length) +
+            b''.join(b_chr(c) for c in term)
+        )
+    else:
+        raise OutputException('uint32 overflow')
+
 
 def _tuple_to_binary(term):
     length = len(term)
