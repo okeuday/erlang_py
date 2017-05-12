@@ -3,13 +3,13 @@
 # ex: set ft=python fenc=utf-8 sts=4 ts=4 sw=4 et nomod:
 #
 # BSD LICENSE
-# 
+#
 # Copyright (c) 2011-2017, Michael Truog <mjtruog at gmail dot com>
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 #     * Redistributions of source code must retain the above copyright
 #       notice, this list of conditions and the following disclaimer.
 #     * Redistributions in binary form must reproduce the above copyright
@@ -22,7 +22,7 @@
 #     * The name of the author may not be used to endorse or promote
 #       products derived from this software without specific prior
 #       written permission
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
 # CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
 # INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
@@ -428,7 +428,7 @@ def _binary_to_term(i, data):
         i += 4
         i, tmp = _binary_to_term_sequence(i, length, data)
         i, tail = _binary_to_term(i, data)
-        if type(tail) != list or tail != []: 
+        if type(tail) != list or tail != []:
             tmp.append(tail)
             tmp = OtpErlangList(tmp, improper=True)
         return (i, tmp)
@@ -510,7 +510,7 @@ def _binary_to_term(i, data):
     elif tag == _TAG_ATOM_UTF8_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict') 
+        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict')
         return (i + j, OtpErlangAtom(atom_name))
     elif tag == _TAG_SMALL_ATOM_UTF8_EXT:
         j = b_ord(data[i:i + 1])
@@ -540,7 +540,7 @@ def _binary_to_term_sequence(i, length, data):
         i, element = _binary_to_term(i, data)
         sequence.append(element)
     return (i, sequence)
-        
+
 # (binary_to_term Erlang term primitive type functions)
 
 def _binary_to_integer(i, data):
@@ -584,7 +584,7 @@ def _binary_to_atom(i, data):
     elif tag == _TAG_ATOM_UTF8_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict') 
+        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict')
         return (i + j, OtpErlangAtom(atom_name))
     elif tag == _TAG_SMALL_ATOM_UTF8_EXT:
         j = b_ord(data[i:i + 1])
@@ -797,4 +797,3 @@ def consult(string_in):
             list_out.append(c)
         i += 1
     return eval(''.join(list_out))
-
