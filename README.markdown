@@ -14,3 +14,13 @@ Tests
 
     python setup.py test
 
+Author
+------
+
+Michael Truog (mjtruog [at] gmail (dot) com)
+
+License
+-------
+
+MIT License
+
