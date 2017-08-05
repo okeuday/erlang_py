@@ -414,7 +414,7 @@ def _binary_to_term(i, data):
         i += 4
         i, tmp = _binary_to_term_sequence(i, length, data)
         i, tail = _binary_to_term(i, data)
-        if type(tail) != list or tail != []: 
+        if type(tail) != list or tail != []:
             tmp.append(tail)
             tmp = OtpErlangList(tmp, improper=True)
         return (i, tmp)
@@ -466,6 +466,8 @@ def _binary_to_term(i, data):
             tmp = True
         elif atom_name == b'false':
             tmp = False
+        elif atom_name == b'nil':
+            tmp = None
         else:
             tmp = OtpErlangAtom(atom_name)
         return (i + j, tmp)
@@ -496,7 +498,7 @@ def _binary_to_term(i, data):
     elif tag == _TAG_ATOM_UTF8_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict') 
+        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict')
         return (i + j, OtpErlangAtom(atom_name))
     elif tag == _TAG_SMALL_ATOM_UTF8_EXT:
         j = b_ord(data[i:i + 1])
@@ -526,7 +528,7 @@ def _binary_to_term_sequence(i, length, data):
         i, element = _binary_to_term(i, data)
         sequence.append(element)
     return (i, sequence)
-        
+
 # (binary_to_term Erlang term primitive type functions)
 
 def _binary_to_integer(i, data):
@@ -570,7 +572,7 @@ def _binary_to_atom(i, data):
     elif tag == _TAG_ATOM_UTF8_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict') 
+        atom_name = unicode(data[i:i + j], encoding='utf-8', errors='strict')
         return (i + j, OtpErlangAtom(atom_name))
     elif tag == _TAG_SMALL_ATOM_UTF8_EXT:
         j = b_ord(data[i:i + 1])
@@ -583,10 +585,8 @@ def _binary_to_atom(i, data):
 # term_to_binary implementation functions
 
 def _term_to_binary(term):
-    if type(term) == bytes:
+    if isinstance(term, (bytes, unicode)):
         return _string_to_binary(term)
-    elif type(term) == unicode:
-        return _string_to_binary(term.encode(encoding='utf-8', errors='strict'))
     elif type(term) == list:
         return OtpErlangList(term).binary()
     elif type(term) == tuple:
@@ -599,6 +599,8 @@ def _term_to_binary(term):
         return _dict_to_binary(term)
     elif type(term) == bool:
         return OtpErlangAtom(term and b'true' or b'false').binary()
+    elif term is None:
+        return OtpErlangAtom(b'nil').binary()
     elif isinstance(term, OtpErlangAtom):
         return term.binary()
     elif isinstance(term, OtpErlangList):
@@ -614,24 +616,50 @@ def _term_to_binary(term):
     elif isinstance(term, OtpErlangPid):
         return term.binary()
     else:
-        raise OutputException('unknown python type')
+        raise OutputException('unknown python type {0}'.format(term))
 
 # (term_to_binary Erlang term composite type functions)
 
+
 def _string_to_binary(term):
+    if isinstance(term, unicode):
+        return _unicode_to_binary(term)
+    else:
+        return _bytes_to_binary(term)
+
+
+def _bytes_to_binary(term):
     length = len(term)
     if length == 0:
         return b_chr(_TAG_NIL_EXT)
     elif length <= 65535:
         return b_chr(_TAG_STRING_EXT) + struct.pack(b'>H', length) + term
     elif length <= 4294967295:
-        return (b_chr(_TAG_LIST_EXT) + struct.pack(b'>I', length) +
-            b''.join([b_chr(_TAG_SMALL_INTEGER_EXT) + b_chr(b_ord(c))
-                      for c in term]) +
+        return (
+            b_chr(_TAG_LIST_EXT) +
+            struct.pack(b'>I', length) +
+            b''.join([
+                b_chr(_TAG_SMALL_INTEGER_EXT) + b_chr(b_ord(c))
+                for c in term
+            ]) +
             b_chr(_TAG_NIL_EXT)
         )
     else:
         raise OutputException('uint32 overflow')
+
+
+def _unicode_to_binary(term):
+    term = term.encode(encoding='utf-8', errors='strict')
+    length = len(term)
+    if length <= 4294967295:
+        return (
+            b_chr(_TAG_BINARY_EXT) +
+            struct.pack(b'>I', length) +
+            b''.join(b_chr(c) for c in term)
+        )
+    else:
+        raise OutputException('uint32 overflow')
+
 
 def _tuple_to_binary(term):
     length = len(term)
@@ -783,4 +811,3 @@ def consult(string_in):
             list_out.append(c)
         i += 1
     return eval(''.join(list_out))
-
