@@ -26,19 +26,22 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-import sys, os
+import sys
+import os
 sys.path.append(
     os.path.sep.join(
-        os.path.dirname(os.path.abspath(__file__))
-               .split(os.path.sep)[:-1]
+        os.path.dirname(os.path.abspath(__file__)).split(os.path.sep)[:-1]
     )
 )
+
 import unittest
 import erlang
+
 
 # many of the test cases were adapted
 # from erlport (https://github.com/hdima/erlport)
 # to make the tests more exhaustive
+
 
 class AtomTestCase(unittest.TestCase):
     def test_atom(self):
@@ -55,6 +58,7 @@ class AtomTestCase(unittest.TestCase):
         self.assertEqual(hash(atom1), hash(atom1_new))
         self.assertEqual('X' * 255, erlang.OtpErlangAtom('X' * 255).value)
         self.assertEqual('X' * 256, erlang.OtpErlangAtom('X' * 256).value)
+
     def test_invalid_atom(self):
         self.assertRaises(erlang.OutputException,
                           erlang.OtpErlangAtom.binary,
@@ -271,10 +275,12 @@ class DecodeTestCase(unittest.TestCase):
             erlang.ParseException, erlang.binary_to_term,
             b'\x83P\0\0\0\x16\x78\xda\xcb\x66\x10\x49\xc1\2\0\x5d\x60\x08\x50'
         )
-        self.assertEqual(b'd' * 20,
+        self.assertEqual(
+            b'd' * 20,
             erlang.binary_to_term(b'\x83P\0\0\0\x17\x78\xda\xcb\x66'
                                   b'\x10\x49\xc1\2\0\x5d\x60\x08\x50')
         )
+
 
 class EncodeTestCase(unittest.TestCase):
     def test_term_to_binary_tuple(self):
@@ -284,11 +290,14 @@ class EncodeTestCase(unittest.TestCase):
                          erlang.term_to_binary(tuple([()] * 255)))
         self.assertEqual(b'\x83i\0\0\1\0' + b'h\0' * 256,
                          erlang.term_to_binary(tuple([()] * 256)))
+
     def test_term_to_binary_empty_list(self):
         self.assertEqual(b'\x83j', erlang.term_to_binary([]))
+
     def test_term_to_binary_string_list(self):
-        self.assertEqual(b'\x83j', erlang.term_to_binary(''))
-        self.assertEqual(b'\x83k\0\1\0', erlang.term_to_binary('\0'))
+        self.assertEqual(b'\x83j', erlang.term_to_binary(b''))
+        self.assertEqual(b'\x83m\x00\x00\x00\x00', erlang.term_to_binary(u''))
+        self.assertEqual(b'\x83k\0\1\0', erlang.term_to_binary(b'\0'))
         s = (b'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r'
              b'\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a'
              b'\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>'
@@ -304,10 +313,13 @@ class EncodeTestCase(unittest.TestCase):
              b'\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0'
              b'\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff')
         self.assertEqual(b'\x83k\1\0' + s, erlang.term_to_binary(s))
+
     def test_term_to_binary_list_basic(self):
         self.assertEqual(b'\x83\x6A', erlang.term_to_binary([]))
         self.assertEqual(b'\x83\x6C\x00\x00\x00\x01\x6A\x6A',
-                         erlang.term_to_binary(['']))
+                         erlang.term_to_binary([b'']))
+        self.assertEqual(b'\x83l\x00\x00\x00\x01m\x00\x00\x00\x00j',
+                         erlang.term_to_binary([u'']))
         self.assertEqual(b'\x83\x6C\x00\x00\x00\x01\x61\x01\x6A',
                          erlang.term_to_binary([1]))
         self.assertEqual(b'\x83\x6C\x00\x00\x00\x01\x61\xFF\x6A',
@@ -330,13 +342,17 @@ class EncodeTestCase(unittest.TestCase):
                          erlang.term_to_binary([-257]))
         self.assertEqual(b'\x83\x6C\x00\x00\x00\x01\x62\x80\x00\x00\x00\x6A',
                          erlang.term_to_binary([-2147483648]))
-        self.assertEqual(   
+        self.assertEqual(
             b'\x83\x6C\x00\x00\x00\x01\x6E\x04\x01\x01\x00\x00\x80\x6A',
             erlang.term_to_binary([-2147483649])
         )
         self.assertEqual(
             b'\x83\x6C\x00\x00\x00\x01\x6B\x00\x04\x74\x65\x73\x74\x6A',
-            erlang.term_to_binary(['test'])
+            erlang.term_to_binary([b'test'])
+        )
+        self.assertEqual(
+            b'\x83l\x00\x00\x00\x01m\x00\x00\x00\x04testj',
+            erlang.term_to_binary([u'test'])
         )
         self.assertEqual(
             b'\x83\x6C\x00\x00\x00\x02\x62\x00\x00\x01\x75\x62\x00\x00'
@@ -351,13 +367,21 @@ class EncodeTestCase(unittest.TestCase):
             b'\x83\x6C\x00\x00\x00\x03\x6C\x00\x00\x00\x02\x6B\x00\x04\x74\x68'
             b'\x69\x73\x6B\x00\x02\x69\x73\x6A\x6C\x00\x00\x00\x01\x6C\x00\x00'
             b'\x00\x01\x6B\x00\x01\x61\x6A\x6A\x6B\x00\x04\x74\x65\x73\x74\x6A',
-            erlang.term_to_binary([['this', 'is'], [['a']], 'test'])
+            erlang.term_to_binary([[b'this', b'is'], [[b'a']], b'test'])
         )
+        self.assertEqual(
+            b'\x83l\x00\x00\x00\x03l\x00\x00\x00\x02m\x00\x00\x00\x04thism\x00'
+            b'\x00\x00\x02isjl\x00\x00\x00\x01l\x00\x00\x00\x01m\x00\x00\x00'
+            b'\x01ajjm\x00\x00\x00\x04testj',
+            erlang.term_to_binary([[u'this', u'is'], [[u'a']], u'test'])
+        )
+
     def test_term_to_binary_list(self):
         self.assertEqual(b'\x83l\0\0\0\1jj', erlang.term_to_binary([[]]))
         self.assertEqual(b'\x83l\0\0\0\5jjjjjj',
                          erlang.term_to_binary([[], [], [], [], []]))
-        self.assertEqual(b'\x83l\0\0\0\5jjjjjj',
+        self.assertEqual(
+            b'\x83l\0\0\0\5jjjjjj',
             erlang.term_to_binary(erlang.OtpErlangList([
                 erlang.OtpErlangList([]),
                 erlang.OtpErlangList([]),
@@ -366,25 +390,33 @@ class EncodeTestCase(unittest.TestCase):
                 erlang.OtpErlangList([])]
             ))
         )
+
     def test_term_to_binary_improper_list(self):
-        self.assertEqual(b'\x83l\0\0\0\1h\0h\0',
+        self.assertEqual(
+            b'\x83l\0\0\0\1h\0h\0',
             erlang.term_to_binary(
                 erlang.OtpErlangList([(), ()], improper=True)
             )
         )
-        self.assertEqual(b'\x83l\0\0\0\1a\0a\1',
+        self.assertEqual(
+            b'\x83l\0\0\0\1a\0a\1',
             erlang.term_to_binary(
                 erlang.OtpErlangList([0, 1], improper=True)
             )
         )
+
     def test_term_to_binary_unicode(self):
-        self.assertEqual(b'\x83j', erlang.term_to_binary(''))
-        self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary('test'))
+        self.assertEqual(b'\x83j', erlang.term_to_binary(b''))
+        self.assertEqual(b'\x83m\x00\x00\x00\x00', erlang.term_to_binary(u''))
+        self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary(b'test'))
+        self.assertEqual(b'\x83m\x00\x00\x00\x04test',
+                         erlang.term_to_binary(u'test'))
         self.assertEqual(b'\x83k\0\3\x00\xc3\xbf',
                          erlang.term_to_binary(b'\x00\xc3\xbf'))
         self.assertEqual(b'\x83k\0\2\xc4\x80',
                          erlang.term_to_binary(b'\xc4\x80'))
-        self.assertEqual(b'\x83k\0\x08\xd1\x82\xd0\xb5\xd1\x81\xd1\x82',
+        self.assertEqual(
+            b'\x83k\0\x08\xd1\x82\xd0\xb5\xd1\x81\xd1\x82',
             erlang.term_to_binary(b'\xd1\x82\xd0\xb5\xd1\x81\xd1\x82')
         )
         # becomes a list of small integers
@@ -392,54 +424,95 @@ class EncodeTestCase(unittest.TestCase):
             b'\x83l\x00\x02\x00\x00' + (b'a\xd0a\x90' * 65536) + b'j',
             erlang.term_to_binary(b'\xd0\x90' * 65536)
         )
+
     def test_term_to_binary_atom(self):
         self.assertEqual(b'\x83s\0',
                          erlang.term_to_binary(erlang.OtpErlangAtom(b'')))
-        self.assertEqual(b'\x83s\4test',
+        self.assertEqual(
+            b'\x83s\4test',
             erlang.term_to_binary(erlang.OtpErlangAtom(b'test'))
         )
-    def test_term_to_binary_string_basic(self):
-        self.assertEqual(b'\x83\x6A', erlang.term_to_binary(''))
+
+    def test_term_to_binary_bite_string_basic(self):
+        self.assertEqual(b'\x83\x6A', erlang.term_to_binary(b''))
         self.assertEqual(b'\x83\x6B\x00\x04\x74\x65\x73\x74',
-                         erlang.term_to_binary('test'))
+                         erlang.term_to_binary(b'test'))
         self.assertEqual(
             b'\x83\x6B\x00\x09\x74\x77\x6F\x20\x77\x6F\x72\x64\x73',
-            erlang.term_to_binary('two words')
+            erlang.term_to_binary(b'two words')
         )
         self.assertEqual(
             b'\x83\x6B\x00\x16\x74\x65\x73\x74\x69\x6E\x67\x20\x6D\x75\x6C\x74'
             b'\x69\x70\x6C\x65\x20\x77\x6F\x72\x64\x73',
-            erlang.term_to_binary('testing multiple words')
+            erlang.term_to_binary(b'testing multiple words')
         )
         self.assertEqual(b'\x83\x6B\x00\x01\x20',
-                         erlang.term_to_binary(' '))
+                         erlang.term_to_binary(b' '))
         self.assertEqual(b'\x83\x6B\x00\x02\x20\x20',
-                         erlang.term_to_binary('  '))
+                         erlang.term_to_binary(b'  '))
         self.assertEqual(b'\x83\x6B\x00\x01\x31',
-                         erlang.term_to_binary('1'))
+                         erlang.term_to_binary(b'1'))
         self.assertEqual(b'\x83\x6B\x00\x02\x33\x37',
-                         erlang.term_to_binary('37'))
+                         erlang.term_to_binary(b'37'))
         self.assertEqual(b'\x83\x6B\x00\x07\x6F\x6E\x65\x20\x3D\x20\x31',
-                         erlang.term_to_binary('one = 1'))
+                         erlang.term_to_binary(b'one = 1'))
         self.assertEqual(
             b'\x83\x6B\x00\x20\x21\x40\x23\x24\x25\x5E\x26\x2A\x28\x29\x5F\x2B'
             b'\x2D\x3D\x5B\x5D\x7B\x7D\x5C\x7C\x3B\x27\x3A\x22\x2C\x2E\x2F\x3C'
             b'\x3E\x3F\x7E\x60',
-            erlang.term_to_binary('!@#$%^&*()_+-=[]{}\\|;\':",./<>?~`')
+            erlang.term_to_binary(b'!@#$%^&*()_+-=[]{}\\|;\':",./<>?~`')
         )
         self.assertEqual(
             b'\x83\x6B\x00\x09\x22\x08\x0C\x0A\x0D\x09\x0B\x53\x12',
-            erlang.term_to_binary('\"\b\f\n\r\t\v\123\x12')
+            erlang.term_to_binary(b'\"\b\f\n\r\t\v\123\x12')
         )
+
+    def test_term_to_binary_unicode_string_basic(self):
+        self.assertEqual(b'\x83m\x00\x00\x00\x00', erlang.term_to_binary(u''))
+        self.assertEqual(b'\x83m\x00\x00\x00\x04test',
+                         erlang.term_to_binary(u'test'))
+        self.assertEqual(
+            b'\x83m\x00\x00\x00\x0btw\xc3\xb3 w\xc3\xb6rds',
+            erlang.term_to_binary(u'twó wörds')
+        )
+        self.assertEqual(
+            b'\x83m\x00\x00\x00\x16testing multiple words',
+            erlang.term_to_binary(u'testing multiple words')
+        )
+        self.assertEqual(b'\x83m\x00\x00\x00\x01 ',
+                         erlang.term_to_binary(u' '))
+        self.assertEqual(b'\x83m\x00\x00\x00\x02  ',
+                         erlang.term_to_binary(u'  '))
+        self.assertEqual(b'\x83m\x00\x00\x00\x011',
+                         erlang.term_to_binary(u'1'))
+        self.assertEqual(b'\x83m\x00\x00\x00\x0237',
+                         erlang.term_to_binary(u'37'))
+        self.assertEqual(b'\x83m\x00\x00\x00\x07one = 1',
+                         erlang.term_to_binary(u'one = 1'))
+        self.assertEqual(
+            b'\x83m\x00\x00\x00 !@#$%^&*()_+-=[]{}\\|;\':",./<>?~`',
+            erlang.term_to_binary(u'!@#$%^&*()_+-=[]{}\\|;\':",./<>?~`')
+        )
+        self.assertEqual(
+            b'\x83m\x00\x00\x00\t"\x08\x0c\n\r\t\x0bS\x12',
+            erlang.term_to_binary(u'\"\b\f\n\r\t\v\123\x12')
+        )
+
     def test_term_to_binary_string(self):
-        self.assertEqual(b'\x83j', erlang.term_to_binary(''))
-        self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary('test'))
+        self.assertEqual(b'\x83j', erlang.term_to_binary(b''))
+        self.assertEqual(b'\x83m\x00\x00\x00\x00', erlang.term_to_binary(u''))
+        self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary(b'test'))
+        self.assertEqual(b'\x83m\x00\x00\x00\x04test',
+                         erlang.term_to_binary(u'test'))
+
     def test_term_to_binary_boolean(self):
         self.assertEqual(b'\x83s\4true', erlang.term_to_binary(True))
         self.assertEqual(b'\x83s\5false', erlang.term_to_binary(False))
+
     def test_term_to_binary_short_integer(self):
         self.assertEqual(b'\x83a\0', erlang.term_to_binary(0))
         self.assertEqual(b'\x83a\xff', erlang.term_to_binary(255))
+
     def test_term_to_binary_integer(self):
         self.assertEqual(b'\x83b\xff\xff\xff\xff', erlang.term_to_binary(-1))
         self.assertEqual(b'\x83b\x80\0\0\0',
@@ -447,6 +520,7 @@ class EncodeTestCase(unittest.TestCase):
         self.assertEqual(b'\x83b\0\0\1\0', erlang.term_to_binary(256))
         self.assertEqual(b'\x83b\x7f\xff\xff\xff',
                          erlang.term_to_binary(2147483647))
+
     def test_term_to_binary_long_integer(self):
         self.assertEqual(b'\x83n\4\0\0\0\0\x80',
                          erlang.term_to_binary(2147483648))
@@ -456,6 +530,7 @@ class EncodeTestCase(unittest.TestCase):
                          erlang.term_to_binary(2 ** 2040))
         self.assertEqual(b'\x83o\0\0\1\0\1' + b'\0' * 255 + b'\1',
                          erlang.term_to_binary(-2 ** 2040))
+
     def test_term_to_binary_float(self):
         self.assertEqual(b'\x83F\0\0\0\0\0\0\0\0', erlang.term_to_binary(0.0))
         self.assertEqual(b'\x83F?\xe0\0\0\0\0\0\0', erlang.term_to_binary(0.5))
@@ -465,6 +540,7 @@ class EncodeTestCase(unittest.TestCase):
                          erlang.term_to_binary(3.1415926))
         self.assertEqual(b'\x83F\xc0\t!\xfbM\x12\xd8J',
                          erlang.term_to_binary(-3.1415926))
+
     def test_term_to_binary_compressed_term(self):
         self.assertEqual(b'\x83P\x00\x00\x00\x15'
                          b'x\x9c\xcba``\xe0\xcfB\x03\x00B@\x07\x1c',
@@ -484,7 +560,11 @@ class EncodeTestCase(unittest.TestCase):
                          erlang.term_to_binary([[]] * 15, 1))
         self.assertEqual(b'\x83P\0\0\0\x17\x78\xda\xcb\x66'
                          b'\x10\x49\xc1\2\0\x5d\x60\x08\x50',
-                         erlang.term_to_binary('d' * 20, compressed=9))
+                         erlang.term_to_binary(b'd' * 20, compressed=9))
+        self.assertEqual(b'\x83P\x00\x00\x00\x19x\xda\xcbe``'
+                         b'\x10I\xc1\x02\x00^j\x08R',
+                         erlang.term_to_binary(u'd' * 20, compressed=9))
+
 
 def get_suite():
     load = unittest.TestLoader().loadTestsFromTestCase
@@ -495,6 +575,7 @@ def get_suite():
     suite.addTests(load(DecodeTestCase))
     suite.addTests(load(EncodeTestCase))
     return suite
+
 
 if __name__ == '__main__':
     try:
@@ -513,4 +594,3 @@ if __name__ == '__main__':
         modules = [erlang.__file__, __file__]
         cov.report(morfs=modules, show_missing=False)
         cov.html_report(morfs=modules, directory='.cover')
-
