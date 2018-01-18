@@ -599,6 +599,8 @@ def _term_to_binary(term):
         return _dict_to_binary(term)
     elif type(term) == bool:
         return OtpErlangAtom(term and b'true' or b'false').binary()
+    elif term is None:
+        return OtpErlangAtom(b'undefined').binary()
     elif isinstance(term, OtpErlangAtom):
         return term.binary()
     elif isinstance(term, OtpErlangList):

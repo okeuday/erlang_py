@@ -434,9 +434,10 @@ class EncodeTestCase(unittest.TestCase):
     def test_term_to_binary_string(self):
         self.assertEqual(b'\x83j', erlang.term_to_binary(''))
         self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary('test'))
-    def test_term_to_binary_boolean(self):
+    def test_term_to_binary_predefined_atom(self):
         self.assertEqual(b'\x83s\4true', erlang.term_to_binary(True))
         self.assertEqual(b'\x83s\5false', erlang.term_to_binary(False))
+        self.assertEqual(b'\x83s\x09undefined', erlang.term_to_binary(None))
     def test_term_to_binary_short_integer(self):
         self.assertEqual(b'\x83a\0', erlang.term_to_binary(0))
         self.assertEqual(b'\x83a\xff', erlang.term_to_binary(255))
