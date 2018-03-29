@@ -35,6 +35,6 @@ setup(
     version='1.7.3',
     description='Erlang Binary Term Format for Python',
     author='Michael Truog',
-    author_email='mjtruog@gmail.com',
+    author_email='mjtruog@protonmail.com',
     url='https://github.com/okeuday/erlang_py',
 )
