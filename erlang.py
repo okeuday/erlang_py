@@ -698,19 +698,21 @@ def _term_to_binary(term):
     if isinstance(term, bytes):
         return _string_to_binary(term)
     elif isinstance(term, TypeUnicode):
-        return _string_to_binary(term.encode(encoding='utf-8', errors='strict'))
+        return _string_to_binary(
+            term.encode(encoding='utf-8', errors='strict')
+        )
     elif isinstance(term, list):
         return OtpErlangList(term).binary()
     elif isinstance(term, tuple):
         return _tuple_to_binary(term)
+    elif isinstance(term, bool):
+        return OtpErlangAtom(term and b'true' or b'false').binary()
     elif isinstance(term, int) or isinstance(term, TypeLong):
         return _long_to_binary(term)
     elif isinstance(term, float):
         return _float_to_binary(term)
     elif isinstance(term, dict):
         return _dict_to_binary(term)
-    elif isinstance(term, bool):
-        return OtpErlangAtom(term and b'true' or b'false').binary()
     elif term is None:
         return OtpErlangAtom(b'undefined').binary()
     elif isinstance(term, OtpErlangAtom):
