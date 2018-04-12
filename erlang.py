@@ -118,7 +118,7 @@ class OtpErlangAtom(object):
         """
         if isinstance(self.value, int):
             return b_chr(_TAG_ATOM_CACHE_REF) + b_chr(self.value)
-        elif isinstance(self.value, unicode):
+        elif isinstance(self.value, TypeUnicode):
             value_encoded = self.value.encode('utf-8')
             length = len(value_encoded)
             if length <= 255:
