@@ -16,6 +16,7 @@ class PyTest(Command):
         suite.addTests(tests.erlang_tests.get_suite())
         unittest.TextTestRunner().run(suite)
 
+long_description = open('README.markdown', 'r').read()
 setup(
     name='erlang_py',
     py_modules=['erlang'],
@@ -34,6 +35,8 @@ setup(
     ],
     version='1.7.3',
     description='Erlang Binary Term Format for Python',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author='Michael Truog',
     author_email='mjtruog@protonmail.com',
     url='https://github.com/okeuday/erlang_py',
