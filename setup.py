@@ -19,6 +19,7 @@ class PyTest(Command):
         suite.addTests(tests.erlang_tests.get_suite())
         unittest.TextTestRunner().run(suite)
 
+long_description = open('README.rst', 'r').read()
 setup(
     name='erlang_py',
     py_modules=['erlang'],
@@ -35,8 +36,10 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
     ],
-    version='1.7.6',
+    version='1.7.7',
     description='Erlang Binary Term Format for Python',
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
     author='Michael Truog',
     author_email='mjtruog@protonmail.com',
     url='https://github.com/okeuday/erlang_py',
