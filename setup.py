@@ -1,7 +1,10 @@
 #-*-Mode:python;coding:utf-8;tab-width:4;c-basic-offset:4;indent-tabs-mode:()-*-
 # ex: set ft=python fenc=utf-8 sts=4 ts=4 sw=4 et:
-import setuptools
-from distutils.core import setup, Command, Extension
+
+try:
+    from setuptools import setup, Command
+except ImportError:
+    from distutils.core import setup, Command
 
 class PyTest(Command):
     user_options = []
@@ -16,11 +19,10 @@ class PyTest(Command):
         suite.addTests(tests.erlang_tests.get_suite())
         unittest.TextTestRunner().run(suite)
 
-long_description = open('README.markdown', 'r').read()
 setup(
     name='erlang_py',
     py_modules=['erlang'],
-    cmdclass = {'test': PyTest},
+    cmdclass={'test': PyTest},
     license='MIT',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -33,10 +35,8 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
     ],
-    version='1.7.5',
+    version='1.7.6',
     description='Erlang Binary Term Format for Python',
-    long_description=long_description,
-    long_description_content_type="text/markdown",
     author='Michael Truog',
     author_email='mjtruog@protonmail.com',
     url='https://github.com/okeuday/erlang_py',
