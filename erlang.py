@@ -603,7 +603,7 @@ def _binary_to_term(i, data):
         )
         return (i + j, OtpErlangAtom(atom_name))
     elif tag == _TAG_SMALL_ATOM_UTF8_EXT:
-        j = b_ord(data[i:i + 1])
+        j = b_ord(data[i])
         i += 1
         atom_name = TypeUnicode(
             data[i:i + j], encoding='utf-8', errors='strict'
