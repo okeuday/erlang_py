@@ -352,7 +352,7 @@ class OtpErlangReference(object):
         """
         return encoded representation
         """
-        length = len(self.id) / 4
+        length = int(len(self.id) / 4)
         if length == 0:
             return (
                 b_chr(_TAG_REFERENCE_EXT) +
