@@ -36,7 +36,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Distributed Computing',
     ],
-    version='1.8.0',
+    version='2.0.0',
     description='Erlang Binary Term Format for Python',
     long_description=long_description,
     long_description_content_type='text/x-rst',
