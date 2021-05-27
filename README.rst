@@ -15,7 +15,7 @@ Tests
 
 ::
 
-    python setup.py test
+   python setup.py test
 
 Author
 ------
