@@ -508,7 +508,15 @@ def _binary_to_term(i, data):
     elif tag == _TAG_ATOM_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        return (i + j, OtpErlangAtom(data[i:i + j]))
+        atom_name = data[i:i + j]
+        if atom_name == b'true':
+            return (i + j, True)
+        elif atom_name == b'false':
+            return (i + j, False)
+        elif atom_name == b'nil':
+            return (i + j, None)
+
+        return (i + j, OtpErlangAtom(atom_name))
     elif (tag == _TAG_NEW_PORT_EXT or
           tag == _TAG_REFERENCE_EXT or tag == _TAG_PORT_EXT):
         i, node = _binary_to_atom(i, data)
@@ -614,6 +622,8 @@ def _binary_to_term(i, data):
             return (i, True)
         elif atom_name == b'false':
             return (i, False)
+        elif atom_name == b'nil':
+            return (i, None)
         return (i, OtpErlangAtom(atom_name))
     elif tag == _TAG_MAP_EXT:
         length = struct.unpack(b'>I', data[i:i + 4])[0]
@@ -767,7 +777,7 @@ def _term_to_binary(term):
     elif isinstance(term, dict):
         return _dict_to_binary(term)
     elif term is None:
-        return OtpErlangAtom(b'undefined').binary()
+        return OtpErlangAtom(b'nil').binary()
     elif isinstance(term, OtpErlangAtom):
         return term.binary()
     elif isinstance(term, OtpErlangList):
