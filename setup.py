@@ -37,7 +37,7 @@ setup(
         'Topic :: System :: Distributed Computing',
     ],
     version='2.0.4',
-    description='Erlang Binary Term Format for Python',
+    description='Erlang External Term Format for Python',
     long_description=long_description,
     long_description_content_type='text/x-rst',
     author='Michael Truog',

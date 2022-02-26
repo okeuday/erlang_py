@@ -26,7 +26,7 @@
 # DEALINGS IN THE SOFTWARE.
 #
 """
-Erlang Binary Term Format Encoding/Decoding Tests
+Erlang External Term Format Encoding/Decoding Tests
 """
 
 import sys
@@ -520,7 +520,7 @@ class EncodeTestCase(unittest.TestCase):
     def test_term_to_binary_string(self):
         self.assertEqual(b'\x83j', erlang.term_to_binary(''))
         self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary('test'))
-    def test_term_to_binary_boolean(self):
+    def test_term_to_binary_predefined_atom(self):
         self.assertEqual(b'\x83w\4true', erlang.term_to_binary(True))
         self.assertEqual(b'\x83w\5false', erlang.term_to_binary(False))
         self.assertEqual(b'\x83w\11undefined', erlang.term_to_binary(None))

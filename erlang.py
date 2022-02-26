@@ -140,7 +140,8 @@ class OtpErlangAtom(object):
                 )
             raise OutputException('uint16 overflow')
         if isinstance(self.value, bytes):
-            # deprecated (not used in Erlang/OTP 26, i.e., minor_version 2)
+            # deprecated
+            # (not used in Erlang/OTP 26, i.e., minor_version 2)
             length = len(self.value)
             if length <= 255:
                 return b_chr(_TAG_SMALL_ATOM_EXT) + b_chr(length) + self.value
