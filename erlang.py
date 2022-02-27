@@ -60,8 +60,7 @@ else:
         """
         return ord(character)
 
-__all__ = ['UNDEFINED',
-           'OtpErlangAtom',
+__all__ = ['OtpErlangAtom',
            'OtpErlangBinary',
            'OtpErlangFunction',
            'OtpErlangList',
@@ -70,11 +69,12 @@ __all__ = ['UNDEFINED',
            'OtpErlangReference',
            'binary_to_term',
            'term_to_binary',
+           'set_undefined',
            'InputException',
            'OutputException',
            'ParseException']
 
-UNDEFINED = b'undefined' # Elixir use can set to b'nil'
+_UNDEFINED = b'undefined' # Change with set_undefined
 
 # tag values here http://www.erlang.org/doc/apps/erts/erl_ext_dist.html
 _TAG_VERSION = 131
@@ -633,7 +633,7 @@ def _binary_to_term(i, data):
             return (i, True)
         if atom_name == b'false':
             return (i, False)
-        if atom_name == UNDEFINED:
+        if atom_name == _UNDEFINED:
             return (i, None)
         if tag == _TAG_ATOM_UTF8_EXT:
             atom_name = TypeUnicode(
@@ -649,7 +649,7 @@ def _binary_to_term(i, data):
             return (i, True)
         if atom_name == b'false':
             return (i, False)
-        if atom_name == UNDEFINED:
+        if atom_name == _UNDEFINED:
             return (i, None)
         if tag == _TAG_SMALL_ATOM_UTF8_EXT:
             atom_name = TypeUnicode(
@@ -770,7 +770,7 @@ def _term_to_binary(term):
     if isinstance(term, dict):
         return _dict_to_binary(term)
     if term is None:
-        return OtpErlangAtom(TypeUnicode(UNDEFINED, encoding='utf-8')).binary()
+        return OtpErlangAtom(TypeUnicode(_UNDEFINED, encoding='utf-8')).binary()
     if isinstance(term, OtpErlangAtom):
         return term.binary()
     if isinstance(term, OtpErlangList):
@@ -865,6 +865,12 @@ def _bignum_to_binary(term):
 
 def _float_to_binary(term):
     return b_chr(_TAG_NEW_FLOAT_EXT) + struct.pack(b'>d', term)
+
+# Elixir use can set to b'nil'
+def set_undefined(value):
+    assert isinstance(value, bytes)
+    global _UNDEFINED
+    _UNDEFINED = value
 
 # Exception classes listed alphabetically
 
