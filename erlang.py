@@ -32,6 +32,7 @@ import sys
 import struct
 import zlib
 import copy
+import abc
 
 if sys.version_info[0] >= 3:
     TypeLong = int # pylint: disable=invalid-name
@@ -111,7 +112,18 @@ _TAG_SMALL_ATOM_UTF8_EXT = 119
 
 # Erlang term classes listed alphabetically
 
-class OtpErlangAtom(object):
+class OtpErlangCommon(abc.ABC):
+    @abc.abstractmethod
+    def binary(self):
+        raise NotImplementedError
+    def __hash__(self):
+        return hash(self.binary())
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.binary() == other.binary()
+
+class OtpErlangAtom(OtpErlangCommon):
     """
     OtpErlangAtom
     """
@@ -154,12 +166,8 @@ class OtpErlangAtom(object):
         raise OutputException('unknown atom type')
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, repr(self.value))
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangBinary(object):
+class OtpErlangBinary(OtpErlangCommon):
     """
     OtpErlangBinary
     """
@@ -192,12 +200,8 @@ class OtpErlangBinary(object):
         return '%s(%s,bits=%s)' % (
             self.__class__.__name__, repr(self.value), repr(self.bits)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangFunction(object):
+class OtpErlangFunction(OtpErlangCommon):
     """
     OtpErlangFunction
     """
@@ -216,12 +220,8 @@ class OtpErlangFunction(object):
             self.__class__.__name__,
             repr(self.tag), repr(self.value)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangList(object):
+class OtpErlangList(OtpErlangCommon):
     """
     OtpErlangList
     """
@@ -259,12 +259,8 @@ class OtpErlangList(object):
         return '%s(%s,improper=%s)' % (
             self.__class__.__name__, repr(self.value), repr(self.improper)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangPid(object):
+class OtpErlangPid(OtpErlangCommon):
     """
     OtpErlangPid
     """
@@ -298,12 +294,8 @@ class OtpErlangPid(object):
             repr(self.node), repr(self.id), repr(self.serial),
             repr(self.creation)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangPort(object):
+class OtpErlangPort(OtpErlangCommon):
     """
     OtpErlangPort
     """
@@ -335,12 +327,8 @@ class OtpErlangPort(object):
             self.__class__.__name__,
             repr(self.node), repr(self.id), repr(self.creation)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
-class OtpErlangReference(object):
+class OtpErlangReference(OtpErlangCommon):
     """
     OtpErlangReference
     """
@@ -382,10 +370,6 @@ class OtpErlangReference(object):
             self.__class__.__name__,
             repr(self.node), repr(self.id), repr(self.creation)
         )
-    def __hash__(self):
-        return hash(self.binary())
-    def __eq__(self, other):
-        return self.binary() == other.binary()
 
 # dependency to support Erlang maps as map keys in python
 

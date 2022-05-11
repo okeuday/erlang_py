@@ -66,6 +66,7 @@ class AtomTestCase(unittest.TestCase):
         self.assertEqual(hash(atom1), hash(atom1_new))
         self.assertEqual('X' * 255, erlang.OtpErlangAtom('X' * 255).value)
         self.assertEqual('X' * 256, erlang.OtpErlangAtom('X' * 256).value)
+        self.assertNotEqual(atom1, 'test')
     def test_invalid_atom(self):
         self.assertRaises(erlang.OutputException,
                           erlang.OtpErlangAtom.binary,
