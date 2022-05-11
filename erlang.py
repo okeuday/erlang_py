@@ -112,6 +112,16 @@ _TAG_SMALL_ATOM_UTF8_EXT = 119
 # Erlang term classes listed alphabetically
 
 class OtpErlangCommon(object):
+    """
+    OtpErlangCommon
+
+    Provide functionality common to OtpErlang objects.
+    """
+    def binary(self):
+        """
+        return encoded representation
+        """
+        raise NotImplementedError
     def __hash__(self):
         return hash(self.binary())
     def __eq__(self, other):
