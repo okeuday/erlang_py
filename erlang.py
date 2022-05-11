@@ -32,7 +32,6 @@ import sys
 import struct
 import zlib
 import copy
-import abc
 
 if sys.version_info[0] >= 3:
     TypeLong = int # pylint: disable=invalid-name
@@ -112,10 +111,7 @@ _TAG_SMALL_ATOM_UTF8_EXT = 119
 
 # Erlang term classes listed alphabetically
 
-class OtpErlangCommon(abc.ABC):
-    @abc.abstractmethod
-    def binary(self):
-        raise NotImplementedError
+class OtpErlangCommon(object):
     def __hash__(self):
         return hash(self.binary())
     def __eq__(self, other):
