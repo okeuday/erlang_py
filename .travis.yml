@@ -9,6 +9,8 @@ python:
   - "3.9"
   - "pypy"
 #  - "pypy3"
+before_install:
+  - python -m pip install pip==21.3.1
 script: python setup.py test
 branches:
   only:
