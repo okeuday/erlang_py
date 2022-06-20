@@ -9,6 +9,11 @@ python:
   - "3.9"
   - "pypy"
 #  - "pypy3"
+before_install:
+ - |
+    if [ $TRAVIS_PYTHON_VERSION == "3.7" ]; then
+      pip install setuptools==60.8.2
+    fi
 script: python setup.py test
 branches:
   only:
