@@ -1,10 +1,10 @@
-Erlang Binary Term Format for Python
-====================================
+Erlang External Term Format for Python
+======================================
 
 |Build Status|
 
-Provides all encoding and decoding for the Erlang Binary Term Format (as
-defined at http://erlang.org/doc/apps/erts/erl_ext_dist.html) in a
+Provides all encoding and decoding for the Erlang External Term Format
+(as defined at http://erlang.org/doc/apps/erts/erl_ext_dist.html) in a
 single Python module.
 
 Available as a `Python package at
