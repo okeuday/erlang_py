@@ -1,7 +1,7 @@
 Erlang External Term Format for Python
 ======================================
 
-[![Build Status](https://secure.travis-ci.org/okeuday/erlang_py.png?branch=master)](http://travis-ci.org/okeuday/erlang_py)
+[![Build Status](https://app.travis-ci.com/okeuday/erlang_py.svg?branch=master)](https://app.travis-ci.com/okeuday/erlang_py)
 
 Provides all encoding and decoding for the Erlang External Term Format
 (as defined at [http://erlang.org/doc/apps/erts/erl_ext_dist.html](http://erlang.org/doc/apps/erts/erl_ext_dist.html))

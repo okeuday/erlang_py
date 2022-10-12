@@ -27,5 +27,5 @@ License
 
 MIT License
 
-.. |Build Status| image:: https://secure.travis-ci.org/okeuday/erlang_py.png?branch=master
-   :target: http://travis-ci.org/okeuday/erlang_py
+.. |Build Status| image:: https://app.travis-ci.com/okeuday/erlang_py.svg?branch=master
+   :target: https://app.travis-ci.com/okeuday/erlang_py
