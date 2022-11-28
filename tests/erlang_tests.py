@@ -169,6 +169,11 @@ class DecodeTestCase(unittest.TestCase):
         self.assertEqual(isinstance(lst, erlang.OtpErlangList), True)
         self.assertEqual([[], erlang.OtpErlangAtom(b'tail')], lst.value)
         self.assertEqual(True, lst.improper)
+    def test_binary_to_term_map(self):
+        # represents #{ {at,[hello]} => ok}
+        binary = b"\x83t\x00\x00\x00\x01h\x02d\x00\x02atl\x00\x00\x00\x01d\x00\x05hellojd\x00\x02ok"
+        map_with_list = erlang.binary_to_term(binary)
+        self.assertEqual(isinstance(map_with_list, dict), True)
     def test_binary_to_term_small_tuple(self):
         self.assertRaises(erlang.ParseException,
                           erlang.binary_to_term, b'\x83h')
