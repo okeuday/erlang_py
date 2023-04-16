@@ -130,6 +130,8 @@ class DecodeTestCase(unittest.TestCase):
                          erlang.binary_to_term(b'\x83s\4test'))
         self.assertEqual(erlang.OtpErlangAtom(u'name'),
                          erlang.binary_to_term(b'\x83w\x04name'))
+        self.assertEqual(erlang.OtpErlangAtom(u'\u0100sdf'),
+                         erlang.binary_to_term(b'\x83w\x05\xc4\x80sdf'))
     def test_binary_to_term_predefined_atoms(self):
         self.assertEqual(True, erlang.binary_to_term(b'\x83s\4true'))
         self.assertEqual(False, erlang.binary_to_term(b'\x83s\5false'))
@@ -286,7 +288,7 @@ class DecodeTestCase(unittest.TestCase):
         pid_old = erlang.binary_to_term(pid_old_binary)
         self.assertTrue(isinstance(pid_old, erlang.OtpErlangPid))
         self.assertEqual(erlang.term_to_binary(pid_old),
-                         b'\x83gs\rnonode@nohost\x00\x00\x00N'
+                         b'\x83gd\0\rnonode@nohost\x00\x00\x00N'
                          b'\x00\x00\x00\x00\x00')
         pid_new_binary = (
             b'\x83\x58\x64\x00\x0D\x6E\x6F\x6E\x6F\x64\x65\x40\x6E\x6F\x68'
@@ -295,7 +297,7 @@ class DecodeTestCase(unittest.TestCase):
         pid_new = erlang.binary_to_term(pid_new_binary)
         self.assertTrue(isinstance(pid_new, erlang.OtpErlangPid))
         self.assertEqual(erlang.term_to_binary(pid_new),
-                         b'\x83Xs\rnonode@nohost\x00\x00\x00N'
+                         b'\x83Xd\0\rnonode@nohost\x00\x00\x00N'
                          b'\x00\x00\x00\x00\x00\x00\x00\x00')
     def test_binary_to_term_port(self):
         port_old_binary = (
@@ -305,7 +307,7 @@ class DecodeTestCase(unittest.TestCase):
         port_old = erlang.binary_to_term(port_old_binary)
         self.assertTrue(isinstance(port_old, erlang.OtpErlangPort))
         self.assertEqual(erlang.term_to_binary(port_old),
-                         b'\x83fs\rnonode@nohost\x00\x00\x00\x06\x00')
+                         b'\x83fd\0\rnonode@nohost\x00\x00\x00\x06\x00')
         port_new_binary = (
             b'\x83\x59\x64\x00\x0D\x6E\x6F\x6E\x6F\x64\x65\x40\x6E\x6F\x68'
             b'\x6F\x73\x74\x00\x00\x00\x06\x00\x00\x00\x00'
@@ -313,7 +315,7 @@ class DecodeTestCase(unittest.TestCase):
         port_new = erlang.binary_to_term(port_new_binary)
         self.assertTrue(isinstance(port_new, erlang.OtpErlangPort))
         self.assertEqual(erlang.term_to_binary(port_new),
-                         b'\x83Ys\rnonode@nohost\x00\x00\x00\x06'
+                         b'\x83Yd\0\rnonode@nohost\x00\x00\x00\x06'
                          b'\x00\x00\x00\x00')
     def test_binary_to_term_ref(self):
         ref_new_binary = (
@@ -324,7 +326,7 @@ class DecodeTestCase(unittest.TestCase):
         ref_new = erlang.binary_to_term(ref_new_binary)
         self.assertTrue(isinstance(ref_new, erlang.OtpErlangReference))
         self.assertEqual(erlang.term_to_binary(ref_new),
-                         b'\x83r\x00\x03s\rnonode@nohost\x00\x00\x03\xe8'
+                         b'\x83r\x00\x03d\0\rnonode@nohost\x00\x00\x03\xe8'
                          b'N\xe7h\x00\x02\xa4\xc8S@')
         ref_newer_binary = (
             b'\x83\x5A\x00\x03\x64\x00\x0D\x6E\x6F\x6E\x6F\x64\x65\x40\x6E'
@@ -334,7 +336,7 @@ class DecodeTestCase(unittest.TestCase):
         ref_newer = erlang.binary_to_term(ref_newer_binary)
         self.assertTrue(isinstance(ref_newer, erlang.OtpErlangReference))
         self.assertEqual(erlang.term_to_binary(ref_newer),
-                         b'\x83Z\x00\x03s\rnonode@nohost\x00\x00\x00\x00\x00'
+                         b'\x83Z\x00\x03d\0\rnonode@nohost\x00\x00\x00\x00\x00'
                          b'\x01\xac\x03\xc7\x00\x00\x04\xbb\xb2\xca\xee')
     def test_binary_to_term_compressed_term(self):
         self.assertRaises(erlang.ParseException,
@@ -483,11 +485,15 @@ class EncodeTestCase(unittest.TestCase):
             erlang.term_to_binary(b'\xd0\x90' * 65536)
         )
     def test_term_to_binary_atom(self):
-        self.assertEqual(b'\x83s\0',
+        self.assertEqual(b'\x83d\0\0',
                          erlang.term_to_binary(erlang.OtpErlangAtom(b'')))
         self.assertEqual(
-            b'\x83s\4test',
+            b'\x83d\0\4test',
             erlang.term_to_binary(erlang.OtpErlangAtom(b'test'))
+        )
+        self.assertEqual(
+            b'\x83w\x05\xc4\x80sdf',
+            erlang.term_to_binary(erlang.OtpErlangAtom(b'\xc4\x80sdf'))
         )
     def test_term_to_binary_string_basic(self):
         self.assertEqual(b'\x83\x6A', erlang.term_to_binary(''))
@@ -526,9 +532,9 @@ class EncodeTestCase(unittest.TestCase):
         self.assertEqual(b'\x83j', erlang.term_to_binary(''))
         self.assertEqual(b'\x83k\0\4test', erlang.term_to_binary('test'))
     def test_term_to_binary_predefined_atom(self):
-        self.assertEqual(b'\x83w\4true', erlang.term_to_binary(True))
-        self.assertEqual(b'\x83w\5false', erlang.term_to_binary(False))
-        self.assertEqual(b'\x83w\11undefined', erlang.term_to_binary(None))
+        self.assertEqual(b'\x83d\0\4true', erlang.term_to_binary(True))
+        self.assertEqual(b'\x83d\0\5false', erlang.term_to_binary(False))
+        self.assertEqual(b'\x83d\0\11undefined', erlang.term_to_binary(None))
     def test_term_to_binary_short_integer(self):
         self.assertEqual(b'\x83a\0', erlang.term_to_binary(0))
         self.assertEqual(b'\x83a\xff', erlang.term_to_binary(255))

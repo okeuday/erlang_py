@@ -36,6 +36,7 @@ import copy
 if sys.version_info[0] >= 3:
     TypeLong = int # pylint: disable=invalid-name
     TypeUnicode = str # pylint: disable=invalid-name
+    TypeBytes = bytes # pylint: disable=invalid-name
     def b_chr(integer):
         """
         bytes chr function
@@ -49,6 +50,7 @@ if sys.version_info[0] >= 3:
 else:
     TypeLong = long # pylint: disable=invalid-name
     TypeUnicode = unicode # pylint: disable=invalid-name
+    TypeBytes = str # pylint: disable=invalid-name
     def b_chr(integer):
         """
         bytes chr function
@@ -119,6 +121,9 @@ class OtpErlangAtom(object):
     # pylint: disable=too-few-public-methods
     def __init__(self, value):
         self.value = value
+    def is_utf8_bytes(self, value_encoded):
+        value_decoded = value_encoded.decode('utf-8')
+        return len(value_encoded) != len(value_decoded)
     def binary(self):
         """
         return encoded representation
@@ -127,28 +132,26 @@ class OtpErlangAtom(object):
             return b_chr(_TAG_ATOM_CACHE_REF) + b_chr(self.value)
         if isinstance(self.value, TypeUnicode):
             value_encoded = self.value.encode('utf-8')
+        else:
+            value_encoded = self.value
+        if isinstance(value_encoded, TypeBytes):
             length = len(value_encoded)
-            if length <= 255:
-                return (
-                    b_chr(_TAG_SMALL_ATOM_UTF8_EXT) +
-                    b_chr(length) + value_encoded
-                )
-            if length <= 65535:
-                return (
-                    b_chr(_TAG_ATOM_UTF8_EXT) +
-                    struct.pack(b'>H', length) + value_encoded
-                )
-            raise OutputException('uint16 overflow')
-        if isinstance(self.value, bytes):
-            # deprecated
-            # (not used in Erlang/OTP 26, i.e., minor_version 2)
-            length = len(self.value)
-            if length <= 255:
-                return b_chr(_TAG_SMALL_ATOM_EXT) + b_chr(length) + self.value
+            if self.is_utf8_bytes(value_encoded):
+                if length <= 255:
+                    return (
+                        b_chr(_TAG_SMALL_ATOM_UTF8_EXT) +
+                        b_chr(length) + value_encoded
+                    )
+                if length <= 65535:
+                    return (
+                        b_chr(_TAG_ATOM_UTF8_EXT) +
+                        struct.pack(b'>H', length) + value_encoded
+                    )
+                raise OutputException('uint16 overflow')
             if length <= 65535:
                 return (
                     b_chr(_TAG_ATOM_EXT) +
-                    struct.pack(b'>H', length) + self.value
+                    struct.pack(b'>H', length) + value_encoded
                 )
             raise OutputException('uint16 overflow')
         raise OutputException('unknown atom type')
@@ -643,6 +646,10 @@ def _binary_to_term(i, data):
             atom_name = TypeUnicode(
                 atom_name, encoding='utf-8', errors='strict'
             )
+        if tag == _TAG_ATOM_EXT:
+            atom_name = TypeUnicode(
+                atom_name, encoding='latin-1', errors='strict'
+            )
         return (i, OtpErlangAtom(atom_name))
     if tag in (_TAG_SMALL_ATOM_UTF8_EXT, _TAG_SMALL_ATOM_EXT):
         j = b_ord(data[i])
@@ -658,6 +665,10 @@ def _binary_to_term(i, data):
         if tag == _TAG_SMALL_ATOM_UTF8_EXT:
             atom_name = TypeUnicode(
                 atom_name, encoding='utf-8', errors='strict'
+            )
+        if tag == _TAG_SMALL_ATOM_EXT:
+            atom_name = TypeUnicode(
+                atom_name, encoding='latin-1', errors='strict'
             )
         return (i, OtpErlangAtom(atom_name))
     if tag == _TAG_COMPRESSED_ZLIB:
@@ -723,13 +734,19 @@ def _binary_to_atom(i, data):
     if tag == _TAG_ATOM_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
-        return (i + j, OtpErlangAtom(data[i:i + j]))
+        atom_name = TypeUnicode(
+            data[i:i + j], encoding='latin-1', errors='strict'
+        )
+        return (i + j, OtpErlangAtom(atom_name))
     if tag == _TAG_ATOM_CACHE_REF:
         return (i + 1, OtpErlangAtom(b_ord(data[i])))
     if tag == _TAG_SMALL_ATOM_EXT:
         j = b_ord(data[i])
         i += 1
-        return (i + j, OtpErlangAtom(data[i:i + j]))
+        atom_name = TypeUnicode(
+            data[i:i + j], encoding='latin-1', errors='strict'
+        )
+        return (i + j, OtpErlangAtom(atom_name))
     if tag == _TAG_ATOM_UTF8_EXT:
         j = struct.unpack(b'>H', data[i:i + 2])[0]
         i += 2
