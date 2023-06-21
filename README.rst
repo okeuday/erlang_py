@@ -4,7 +4,7 @@ Erlang External Term Format for Python
 |Build Status|
 
 Provides all encoding and decoding for the Erlang External Term Format
-(as defined at http://erlang.org/doc/apps/erts/erl_ext_dist.html) in a
+(as defined at https://erlang.org/doc/apps/erts/erl_ext_dist.html) in a
 single Python module.
 
 Available as a `Python package at
